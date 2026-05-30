@@ -59,6 +59,13 @@ class GameScene(s.Scene):
 
         self.food.maintain_count()
         self._check_collisions()
+
+        entries = [("Player", self.snake)]
+        for i, bot in enumerate(self.bots):
+            if bot.alive:
+                entries.append((f"Bot {i+1}", bot))
+        self.hud.update_leaderboard(entries)
+
         self._update_respawn(dt)
 
     def _check_collisions(self) -> None:
@@ -172,5 +179,7 @@ class GameScene(s.Scene):
         self.hud.show_game_over(self.score)
 
     def _restart(self) -> None:
-        self.hud.clear()
+        for sprite in list(s.get_game().all_sprites):
+            if getattr(sprite, "scene", None) is self and sprite.active:
+                s.disable_sprite(sprite)
         self._init_game()
