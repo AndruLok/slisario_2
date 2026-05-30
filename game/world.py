@@ -1,18 +1,29 @@
+import pygame
 import spritePro as s
-from .config import WORLD_WIDTH, WORLD_HEIGHT, FILL_COLOR
+from .config import WORLD_WIDTH, WORLD_HEIGHT
+
+
+def _make_tiled_bg(image_path: str, area: tuple[int, int], scale: float = 0.6) -> pygame.Surface:
+    tile = pygame.image.load(image_path).convert()
+    tw, th = tile.get_size()
+    tile = pygame.transform.scale(tile, (int(tw * scale), int(th * scale)))
+    surf = pygame.Surface(area)
+    tw, th = tile.get_size()
+    w, h = area
+    for y in range(0, h, th):
+        for x in range(0, w, tw):
+            surf.blit(tile, (x, y))
+    return surf
 
 
 class World:
     def __init__(self, scene: s.Scene):
         self.scene = scene
 
+        bg_surf = _make_tiled_bg("images/bg.jpg", (WORLD_WIDTH, WORLD_HEIGHT))
         self.bg = s.Sprite(
-            "", (WORLD_WIDTH, WORLD_HEIGHT), (WORLD_WIDTH // 2, WORLD_HEIGHT // 2),
+            bg_surf, (WORLD_WIDTH, WORLD_HEIGHT), (WORLD_WIDTH // 2, WORLD_HEIGHT // 2),
             scene=scene,
-        )
-        self.bg.set_rect_shape(
-            size=(WORLD_WIDTH, WORLD_HEIGHT),
-            color=FILL_COLOR,
         )
         self.bg.set_sorting_order(0)
 
