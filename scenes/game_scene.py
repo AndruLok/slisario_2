@@ -75,7 +75,7 @@ class GameScene(s.Scene):
             if food.active and _circle_collide(head.rect.center, food.rect.center, HEAD_SIZE // 2, FOOD_SIZE):
                 self._player_eat(food)
 
-        for bot in self.bots:
+        for bot in list(self.bots):
             if not bot.alive:
                 continue
             for seg in bot.segments:
@@ -88,7 +88,7 @@ class GameScene(s.Scene):
                 self._trigger_game_over()
                 return
 
-        for bot in self.bots:
+        for bot in list(self.bots):
             if not bot.alive:
                 continue
             for food in list(self.food.foods):
@@ -99,12 +99,18 @@ class GameScene(s.Scene):
                 if seg.active and bot.head.rect.colliderect(seg.rect):
                     self._bot_killed(bot.head)
                     break
+            for other in list(self.bots):
+                if other is bot or not other.alive:
+                    continue
+                for seg in other.segments:
+                    if seg.active and bot.head.rect.colliderect(seg.rect):
+                        self._bot_killed(bot.head)
+                        break
 
     def _player_eat(self, food_sprite: s.Sprite) -> None:
         if self.game_over:
             return
-        if food_sprite.active:
-            s.disable_sprite(food_sprite)
+        self.food._disable_food(food_sprite)
         if food_sprite in self.food.foods:
             self.food.foods.remove(food_sprite)
         self.score += 1
@@ -114,8 +120,7 @@ class GameScene(s.Scene):
         self.food.maintain_count()
 
     def _bot_eat(self, bot_head: s.Sprite, food_sprite: s.Sprite) -> None:
-        if food_sprite.active:
-            s.disable_sprite(food_sprite)
+        self.food._disable_food(food_sprite)
         if food_sprite in self.food.foods:
             self.food.foods.remove(food_sprite)
         for bot in self.bots:
