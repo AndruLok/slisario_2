@@ -19,4 +19,15 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    if True:
+        s.run(
+            scene=GameScene,
+            size=WINDOW_SIZE,
+            fps=FPS,
+            title=TITLE,
+            fill_color=FILL_COLOR,
+            multiplayer=True,
+            multiplayer_use_lobby=False,
+        )
+    else:
+        main()

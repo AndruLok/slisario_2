@@ -56,6 +56,29 @@ class FoodManager:
         while len(self.foods) < FOOD_COUNT:
             self.spawn()
 
+    def get_state(self) -> list[dict]:
+        return [
+            {"pos": f.rect.center, "color": f.color}
+            for f in self.foods if f.active
+        ]
+
+    def sync_from_data(self, foods_data: list[dict]) -> None:
+        for food in self.foods:
+            self._disable_food(food)
+        self.foods.clear()
+        self._glows.clear()
+        for fd in foods_data:
+            pos = tuple(fd["pos"])
+            color = tuple(fd["color"])
+            food = s.Sprite("", (FOOD_SIZE * 2, FOOD_SIZE * 2), pos, scene=self.scene)
+            food.set_circle_shape(radius=FOOD_SIZE, color=color)
+            food.set_sorting_order(1)
+            food._ctype = "food"
+            food.color = color
+            glow = self._make_glow(color, pos)
+            self._glows[id(food)] = glow
+            self.foods.append(food)
+
     def clear(self) -> None:
         for food in self.foods:
             self._disable_food(food)
